@@ -117,7 +117,7 @@ const MCPClient = {
             if (this.cfg.port === 10086 && !this.cfg.portMigrated) {
                 this.cfg.port = this.DEFAULT_PORT;
                 this.cfg.portMigrated = true;
-                console.log('[HAPPYJS-MCP] 默认端口已迁移 10086 → 10087');
+                console.log('[JsXray-MCP] 默认端口已迁移 10086 → 10087');
             }
             if (!this.cfg.port) this.cfg.port = this.DEFAULT_PORT;
             if (!this.cfg.token) this.cfg.token = this.genToken();
@@ -127,7 +127,7 @@ const MCPClient = {
                 if (a.name === this.ALARM && this.cfg.enabled && !this.isOpen()) this.connect();
             });
             if (this.cfg.enabled) this.start();
-        } catch (e) { console.error('[HAPPYJS-MCP] init:', e); }
+        } catch (e) { console.error('[JsXray-MCP] init:', e); }
     },
 
     genToken() {
@@ -225,7 +225,7 @@ const MCPClient = {
                 // 记住成功端口，后续重连优先使用
                 const i = this.portCandidates().indexOf(this.connectedPort);
                 if (i >= 0) this._cycle = i;
-                console.log(`[HAPPYJS-MCP] 已连接桥接进程（端口 ${this.connectedPort}）`);
+                console.log(`[JsXray-MCP] 已连接桥接进程（端口 ${this.connectedPort}）`);
             } else {
                 this.status = 'error';
                 this.lastError = '令牌校验失败：请核对桥接进程 --token 参数与扩展设置页一致（或点「重置令牌」后更新配置）';
@@ -1485,7 +1485,7 @@ const MCPClient = {
         const estBytes = Math.round(dataUrl.length * 0.75);
         if (args.saveToDisk !== false && DownloadManager.hasApi()) {
             const vars = DownloadManager._vars(tabId, tab.url);
-            const dir = DownloadManager.expandDir(args.dir != null ? args.dir : 'HAPPYJS/{host}/{date}/screenshots', vars);
+            const dir = DownloadManager.expandDir(args.dir != null ? args.dir : 'JsXray/{host}/{date}/screenshots', vars);
             const ext = args.format === 'jpeg' ? 'jpg' : 'png';
             const name = `${dir}/shot_${vars.host}_${vars.time}.${ext}`;
             try {

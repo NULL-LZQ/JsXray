@@ -73,7 +73,7 @@ function parseArgs() {
 let CFG = { port: 10087, token: '' };
 
 // 注意：stdout 只允许输出 MCP 协议消息，日志一律走 stderr
-function log(...a) { console.error('[happyjs-mcp]', ...a); }
+function log(...a) { console.error('[JsXray-MCP]', ...a); }
 /* =====================================================================
  * MCP 工具清单（静态定义，桥/中继共用）
  * ===================================================================== */
@@ -210,7 +210,7 @@ const TOOLS = [
     },
     {
         name: 'download_js',
-        description: '一键下载目标站点全部 JS 到本机。format=files 逐个文件下载（保留目录结构，可选「每次询问保存位置」）；format=zip 打包成单个 ZIP（内含 _manifest.json 与 _list.txt，便于交付/喂给分析）；format=list 只导出 URL 清单。默认会自动创建「以目标网站 URL 命名的文件夹」（如 dns2.example.edu.cn/），再由 dir 模板控制外层目录，例如 "HAPPYJS/{url}/{date}"。注意：浏览器下载接口只接受相对「默认下载目录」的路径，绝对路径（如 D:////js）会被降级到默认下载目录下——要写入任意本机目录需在扩展弹窗使用「直写本地目录」模式',
+        description: '一键下载目标站点全部 JS 到本机。format=files 逐个文件下载（保留目录结构，可选「每次询问保存位置」）；format=zip 打包成单个 ZIP（内含 _manifest.json 与 _list.txt，便于交付/喂给分析）；format=list 只导出 URL 清单。默认会自动创建「以目标网站 URL 命名的文件夹」（如 dns2.example.edu.cn/），再由 dir 模板控制外层目录，例如 "JsXray/{url}/{date}"。注意：浏览器下载接口只接受相对「默认下载目录」的路径，绝对路径（如 D:////js）会被降级到默认下载目录下——要写入任意本机目录需在扩展弹窗使用「直写本地目录」模式',
         inputSchema: {
             type: 'object',
             properties: {
@@ -283,7 +283,7 @@ const TOOLS = [
             properties: {
                 tabId: TAB_ID_PROP,
                 format: { type: 'string', enum: ['png', 'jpeg'], description: '图片格式，默认 png' },
-                dir: { type: 'string', description: '保存目录模板，默认 HAPPYJS/{host}/{date}/screenshots' },
+                dir: { type: 'string', description: '保存目录模板，默认 JsXray/{host}/{date}/screenshots' },
                 saveToDisk: { type: 'boolean', description: '是否保存到磁盘，默认 true' }
             },
             additionalProperties: false
@@ -911,7 +911,7 @@ async function handleRpc(line) {
                 rpcReply(id, {
                     protocolVersion: (params && params.protocolVersion) || '2024-11-05',
                     capabilities: { tools: { listChanged: false } },
-                    serverInfo: { name: 'happy-js', version: VERSION }
+                    serverInfo: { name: 'JsXray', version: VERSION }
                 });
                 return;
             case 'ping':

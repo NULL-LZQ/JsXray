@@ -765,13 +765,13 @@ function renderMcpConfig() {
     let text;
     if (fmt === 'toml') {
         text = '# Codex：追加到 ~/.codex/config.toml\n' +
-            '[mcp_servers.happy-js]\n' +
+            '[mcp_servers.JsXray]\n' +
             'command = "node"\n' +
             `args = ["${serverPath}", "--port", "${port}", "--token", "${token}"]`;
     } else {
         text = JSON.stringify({
             mcpServers: {
-                'happy-js': {
+                'JsXray': {
                     command: 'node',
                     args: [serverPath, '--port', port, '--token', token]
                 }

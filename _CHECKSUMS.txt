@@ -1,5 +1,5 @@
 # JsXray.v1.1.0 文件清单（sha256 前 16 位）
-# 生成时间: 2026-09-17T14:11:55.939Z
+# 生成时间: 2026-09-17T15:55:42.405Z
 # 文件数: 81
 
 41cbf5f6140e7cb4        378  .gitattributes
@@ -53,14 +53,14 @@ e1a833a295e0c5b1      11322  lib/recorder.js
 b2c40e0b912db1e0       8886  lib/site_scope.js
 1460d50542ebf358       4886  lib/zip.js
 0cd642da0921d4d2       1897  manifest.json
-023d23054653bb87      76007  mcp/ext_client.js
-af140ba8cebc6daa      53466  mcp/server.js
+c40d3527070dc317      76003  mcp/ext_client.js
+e3ae219dd9c336bc      53461  mcp/server.js
 b129aed2305efb0e       4282  popup/dlwriter.html
 867529b05f2d97c6      10410  popup/dlwriter.js
 87122adeff02b44b       9476  popup/fsdl.js
 56debca502b0a38a      34485  popup/popup.css
 ed8297e57a4bbbd2      41264  popup/popup.html
-e2c0fd610194448f      99421  popup/popup.js
+18f2d2833ec8627b      99417  popup/popup.js
 75e420ec7d1f7c95      10909  tools/gen_icons.js
 a20e6bbb4554d7ce       2822  tools/generate_icon.js
 796a61e9f1b21469       1808  tools/make_icons_from_art.py
@@ -77,8 +77,8 @@ e22e472bc31c2102       5437  tools/test_bucket_core.js
 f5442c7bf8291a18      14079  tools/test_download_lib.js
 244da7620394f635      10876  tools/test_fsdl.js
 6613613aef9a00fd       6749  tools/test_hooks_activation.js
-44a2bcd752fbe00f       8978  tools/test_mcp_bridge.js
-a1bb1e38f38e686f       3057  tools/test_rules.js
+91cd111bdd2e2328       8974  tools/test_mcp_bridge.js
+82fe93d080f9cf75       3179  tools/test_rules.js
 ffdebba4491ab3e7       9886  tools/test_scan_filters.js
 4261d21cf82a8e98       5051  tools/test_storage_hook_recursion.js
 57785a72a9a7d5c8      14473  tools/test_vue_clear.js

@@ -94,7 +94,7 @@ function fakeExtension(port, token) {
     const bridge = startBridge(PORT);
     await sleep(600);
     const init = await bridge.call('initialize', { protocolVersion: '2024-11-05', capabilities: {}, clientInfo: { name: 'test', version: '0' } });
-    ok(init.result && init.result.serverInfo && init.result.serverInfo.name === 'happy-js', 'initialize 返回 serverInfo');
+    ok(init.result && init.result.serverInfo && init.result.serverInfo.name === 'JsXray', 'initialize 返回 serverInfo');
     bridge.notify('notifications/initialized');
     const list = await bridge.call('tools/list');
     const names = (list.result.tools || []).map(t => t.name);
@@ -151,7 +151,7 @@ function fakeExtension(port, token) {
     const relay = startBridge(PORT);   // 同端口 → 自动降级为中继
     await sleep(800);
     const rinit = await relay.call('initialize', {});
-    ok(rinit.result && rinit.result.serverInfo.name === 'happy-js', '中继实例 MCP 握手正常');
+    ok(rinit.result && rinit.result.serverInfo.name === 'JsXray', '中继实例 MCP 握手正常');
     const r4 = await relay.call('tools/call', { name: 'list_tabs', arguments: {} });
     const text4 = r4.result && r4.result.content && r4.result.content[0] && r4.result.content[0].text || '';
     ok(!r4.result.isError && text4.includes('example.com'), '中继 → 桥 → 扩展 链路回传成功', text4.slice(0, 120));
