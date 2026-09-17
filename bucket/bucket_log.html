@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JsXray · 存储桶检测日志</title>
+    <style>
+        :root {
+            --bg: #f5f6fa;
+            --card: #ffffff;
+            --border: #e6e8ef;
+            --text: #1f2329;
+            --muted: #8a90a2;
+            --accent: #4e6ef2;
+            --ok: #27ae60;
+            --warn: #e67e22;
+            --danger: #e74c3c;
+            --code-bg: #f4f5f8;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --bg: #17181c;
+                --card: #1e2025;
+                --border: #2c2f36;
+                --text: #e6e8ef;
+                --muted: #8a90a2;
+                --accent: #6b86f5;
+                --code-bg: #14151a;
+            }
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', 'Microsoft YaHei', Arial, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            margin: 0;
+            padding: 14px;
+        }
+
+        .wrap {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 16px 18px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+            display: flex;
+            flex-direction: column;
+            height: calc(100vh - 28px);
+        }
+
+        h2 {
+            font-size: 17px;
+            margin: 0 0 12px;
+            color: var(--accent);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        h2 .ver {
+            font-size: 11px;
+            color: var(--muted);
+            font-weight: normal;
+        }
+
+        .input-row {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 10px;
+        }
+
+        #target-url {
+            flex: 1;
+            padding: 7px 10px;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            background: var(--bg);
+            color: var(--text);
+            font-size: 13px;
+            outline: none;
+        }
+
+        #target-url:focus {
+            border-color: var(--accent);
+        }
+
+        #start-detect {
+            padding: 7px 18px;
+            background: var(--accent);
+            color: #fff;
+            border: none;
+            border-radius: 6px;
+            font-size: 13px;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: filter .15s;
+        }
+
+        #start-detect:hover {
+            filter: brightness(1.08);
+        }
+
+        #start-detect:disabled {
+            opacity: .55;
+            cursor: not-allowed;
+        }
+
+        .vendors {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px 14px;
+            padding: 8px 0 10px;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 10px;
+            font-size: 12px;
+        }
+
+        .vendors label {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .vendors .grouplab {
+            color: var(--muted);
+            margin-right: 2px;
+        }
+
+        .vendors .quick {
+            margin-left: auto;
+            display: flex;
+            gap: 6px;
+        }
+
+        .quick button {
+            border: 1px solid var(--border);
+            background: var(--bg);
+            color: var(--muted);
+            border-radius: 5px;
+            padding: 1px 8px;
+            font-size: 11px;
+            cursor: pointer;
+        }
+
+        .quick button:hover {
+            color: var(--accent);
+            border-color: var(--accent);
+        }
+
+        #log {
+            flex: 1;
+            overflow-y: auto;
+            padding-right: 4px;
+        }
+
+        .logline {
+            font-size: 13px;
+            margin-bottom: 9px;
+            word-break: break-all;
+            padding: 4px 6px;
+            border-radius: 5px;
+            transition: background .15s;
+        }
+
+        .logline:hover {
+            background: var(--bg);
+        }
+
+        .tag {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            margin-right: 5px;
+        }
+
+        .tag-vendor {
+            background: rgba(78, 110, 242, .12);
+            color: var(--accent);
+        }
+
+        .tag-type {
+            background: rgba(231, 76, 60, .12);
+            color: var(--danger);
+        }
+
+        .tag-path {
+            background: rgba(22, 160, 133, .12);
+            color: #16a085;
+        }
+
+        .tag-status {
+            background: rgba(230, 126, 34, .14);
+            color: var(--warn);
+        }
+
+        .tag-found {
+            background: rgba(39, 174, 96, .14);
+            color: var(--ok);
+        }
+
+        .tag-notfound {
+            background: rgba(192, 57, 43, .12);
+            color: #c0392b;
+        }
+
+        details {
+            margin-top: 4px;
+        }
+
+        summary {
+            cursor: pointer;
+            color: var(--muted);
+            font-size: 12px;
+        }
+
+        pre {
+            background: var(--code-bg);
+            border: 1px solid var(--border);
+            padding: 8px;
+            border-radius: 6px;
+            font-size: 11px;
+            white-space: pre-wrap;
+            word-break: break-all;
+            max-height: 240px;
+            overflow: auto;
+        }
+
+        .muted {
+            color: var(--muted);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="wrap">
+        <h2>云存储桶检测日志 <span class="ver">JsXray</span></h2>
+
+        <div class="input-row">
+            <input id="target-url" type="text" placeholder="输入要检测的存储桶 URL，例如 https://bucket.oss-cn-hangzhou.aliyuncs.com/"
+                spellcheck="false">
+            <button id="start-detect">开始检测</button>
+        </div>
+
+        <div class="vendors">
+            <span class="grouplab">云厂商</span>
+            <label><input type="checkbox" class="vendor-checkbox" value="aliyun" checked> 阿里云</label>
+            <label><input type="checkbox" class="vendor-checkbox" value="tencent" checked> 腾讯云</label>
+            <label><input type="checkbox" class="vendor-checkbox" value="huawei" checked> 华为云</label>
+            <label><input type="checkbox" class="vendor-checkbox" value="AmazonS3" checked> AWS S3</label>
+            <label><input type="checkbox" class="vendor-checkbox" value="qiniu" checked> 七牛云</label>
+            <label><input type="checkbox" class="vendor-checkbox" value="qingcloud" checked> 青云</label>
+            <label><input type="checkbox" class="vendor-checkbox" value="upyun" checked> 又拍云</label>
+            <label><input type="checkbox" class="vendor-checkbox" value="jdcloud" checked> 京东云</label>
+            <label><input type="checkbox" class="vendor-checkbox" value="kingsoft" checked> 金山云</label>
+            <label><input type="checkbox" class="vendor-checkbox" value="ctyun" checked> 天翼云</label>
+            <span class="quick">
+                <button id="vendor-all" type="button">全选</button>
+                <button id="vendor-none" type="button">清空</button>
+            </span>
+        </div>
+
+        <div class="vendors">
+            <span class="grouplab">漏洞类型</span>
+            <label><input type="checkbox" class="vtype-checkbox" value="存储桶可遍历" checked> 存储桶可遍历</label>
+            <label><input type="checkbox" class="vtype-checkbox" value="PUT文件上传" checked> PUT文件上传</label>
+            <label><input type="checkbox" class="vtype-checkbox" value="DELETE文件删除" checked> DELETE文件删除</label>
+            <label><input type="checkbox" class="vtype-checkbox" value="ACL可读" checked> ACL可读</label>
+            <label><input type="checkbox" class="vtype-checkbox" value="ACL可写" checked> ACL可写</label>
+            <label><input type="checkbox" class="vtype-checkbox" value="Policy可读" checked> Policy可读</label>
+            <label><input type="checkbox" class="vtype-checkbox" value="Policy可写" checked> Policy可写</label>
+            <label><input type="checkbox" class="vtype-checkbox" value="桶接管" checked> 桶接管</label>
+            <span class="quick">
+                <button id="vtype-all" type="button">全选</button>
+                <button id="vtype-none" type="button">清空</button>
+            </span>
+        </div>
+
+        <div id="log"></div>
+    </div>
+    <script src="bucket_log.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,83 @@
+{
+  "manifest_version": 3,
+  "name": "JsXray",
+  "version": "1.1.0",
+  "description": "跨浏览器敏感信息与指纹扫描 · 动态/深度扫描 · 信息泄露高精度引擎 · 接口认证扫描 · 云存储桶风险监测 · JS采集预测补齐(chunk合成/构建清单) · JS逆向Hook · 一键下载站点JS · MCP服务(AI工具桥接)",
+  "author": "JsXray",
+
+  "permissions": [
+    "storage",
+    "scripting",
+    "activeTab",
+    "tabs",
+    "webRequest",
+    "webNavigation",
+    "cookies",
+    "contextMenus",
+    "declarativeNetRequest",
+    "browsingData",
+    "downloads",
+    "notifications",
+    "alarms"
+  ],
+  "optional_permissions": [
+    "debugger"
+  ],
+  "host_permissions": [
+    "<all_urls>"
+  ],
+
+  "background": {
+    "service_worker": "background.js"
+  },
+
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content.js"],
+      "run_at": "document_start",
+      "all_frames": true
+    },
+    {
+      "matches": ["http://*/*", "https://*/*"],
+      "js": ["bucket/content_scan.js"],
+      "run_at": "document_idle",
+      "all_frames": false
+    }
+  ],
+
+  "action": {
+    "default_popup": "popup/popup.html",
+    "default_title": "JsXray",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "32": "icons/icon32.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    }
+  },
+
+  "icons": {
+    "16": "icons/icon16.png",
+    "32": "icons/icon32.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "inject/*.js",
+        "hooks/*.js",
+        "icons/*.png"
+      ],
+      "matches": ["<all_urls>"]
+    }
+  ],
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "happyjs@local.extension",
+      "strict_min_version": "115.0"
+    }
+  }
+}

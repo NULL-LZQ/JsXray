@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JsXray</title>
+    <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+    <div class="app">
+        <!-- 顶部 -->
+        <header class="topbar">
+            <div class="brand">
+                <img src="../icons/icon32.png" alt="logo" class="logo">
+                <div class="brand-text">
+                    <span class="brand-name">JsXray</span>
+                    <span class="brand-sub">敏感信息扫描 · 逆向Hook</span>
+                </div>
+            </div>
+            <div class="topbar-right">
+                <span class="mode-badge" id="mode-badge">标准模式</span>
+                <span class="progress-badge" id="progress-badge" title="扫描进度">--</span>
+                <button class="theme-btn" id="theme-btn" title="切换浅色/深色模式">
+                    <svg id="theme-icon" viewBox="0 0 24 24" width="14" height="14"><path fill="currentColor" d="M12 3a9 9 0 1 0 9 9c0-.46-.04-.92-.1-1.36a5.389 5.389 0 0 1-4.4 2.26 5.403 5.403 0 0 1-3.14-9.8c-.44-.06-.9-.1-1.36-.1z"/></svg>
+                </button>
+            </div>
+        </header>
+
+        <!-- 导航 -->
+        <nav class="nav">
+            <button class="nav-btn active" data-page="scanner">
+                <svg viewBox="0 0 24 24" width="16" height="16"><path fill="currentColor" d="M15.5 14h-.79l-.28-.27a6.5 6.5 0 1 0-.7.7l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0A4.5 4.5 0 1 1 14 9.5 4.5 4.5 0 0 1 9.5 14z"/></svg>
+                扫描
+            </button>
+            <button class="nav-btn" data-page="finger">
+                <svg viewBox="0 0 24 24" width="16" height="16"><path fill="currentColor" d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2zm0 18a8 8 0 1 1 8-8 8 8 0 0 1-8 8z"/><path fill="currentColor" d="M12 6a6 6 0 1 0 6 6 6 6 0 0 0-6-6zm0 10a4 4 0 1 1 4-4 4 4 0 0 1-4 4z"/></svg>
+                指纹
+            </button>
+            <button class="nav-btn" data-page="hooks">
+                <svg viewBox="0 0 24 24" width="16" height="16"><path fill="currentColor" d="M22 7l-1.41-1.41-3.54 3.54-1.42-1.42 3.54-3.54L17.76 2H22v5zm-5.83 2.17l-7 7a2 2 0 0 0 0 2.83l1.41 1.41a2 2 0 0 0 2.83 0l7-7-3.24-3.24z"/></svg>
+                Hook
+            </button>
+            <button class="nav-btn" data-page="routes">
+                <svg viewBox="0 0 24 24" width="16" height="16"><path fill="currentColor" d="M3 10h11v2H3zm0-4h11v2H3zm0 8h7v2H3zm13 0v6l5-3z"/></svg>
+                路由
+            </button>
+            <button class="nav-btn" data-page="settings">
+                <svg viewBox="0 0 24 24" width="16" height="16"><path fill="currentColor" d="M19.14 12.94a7.49 7.49 0 0 0 0-1.88l2.03-1.58a.5.5 0 0 0 .12-.64l-1.92-3.32a.5.5 0 0 0-.61-.22l-2.39.96a7.42 7.42 0 0 0-1.62-.94l-.36-2.54a.5.5 0 0 0-.5-.42h-3.84a.5.5 0 0 0-.5.42l-.36 2.54a7.42 7.42 0 0 0-1.62.94l-2.39-.96a.5.5 0 0 0-.61.22L2.7 8.84a.5.5 0 0 0 .12.64l2.03 1.58a7.49 7.49 0 0 0 0 1.88l-2.03 1.58a.5.5 0 0 0-.12.64l1.92 3.32a.5.5 0 0 0 .61.22l2.39-.96a7.42 7.42 0 0 0 1.62.94l.36 2.54a.5.5 0 0 0 .5.42h3.84a.5.5 0 0 0 .5-.42l.36-2.54a7.42 7.42 0 0 0 1.62-.94l2.39.96a.5.5 0 0 0 .61-.22l1.92-3.32a.5.5 0 0 0-.12-.64zM12 15.5A3.5 3.5 0 1 1 15.5 12 3.5 3.5 0 0 1 12 15.5z"/></svg>
+                设置
+            </button>
+            <button class="nav-btn" data-page="guard">
+                <svg viewBox="0 0 24 24" width="16" height="16"><path fill="currentColor" d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 10.99h7c-.53 4.12-3.28 7.79-7 8.94V12H5V6.3l7-3.11v8.8z"/></svg>
+                防护
+            </button>
+            <button class="nav-btn" data-page="bucket">
+                <svg viewBox="0 0 24 24" width="16" height="16"><path fill="currentColor" d="M19 18H5a3 3 0 0 1-3-3V9a3 3 0 0 1 3-3h1.35l1.1-1.65A2 2 0 0 1 9.12 3h5.76a2 2 0 0 1 1.67.9L17.65 6H19a3 3 0 0 1 3 3v6a3 3 0 0 1-3 3zM5 8a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1V9a1 1 0 0 0-1-1h-2.5l-1.4-2.1a.5.5 0 0 0-.4-.2H9.3a.5.5 0 0 0-.4.2L7.5 8H5zm7 8a4 4 0 1 1 4-4 4 4 0 0 1-4 4zm0-2a2 2 0 1 0-2-2 2 2 0 0 0 2 2z"/></svg>
+                存储桶
+            </button>
+        </nav>
+
+        <!-- 页面容器 -->
+        <main class="pages">
+            <!-- 扫描结果 -->
+            <section class="page scanner-page active" data-page="scanner">
+                <div class="page-toolbar">
+                    <input type="text" id="scanner-search" class="search-input" placeholder="过滤结果...">
+                    <button class="ghost-btn" id="auth-bypass-btn" title="对已发现的接口尝试 14 种绕过变体，探测未授权访问（不带 Cookie 的只读 GET，会自动跳过登出/删除类接口）">
+                        <svg viewBox="0 0 24 24" width="15" height="15"><path fill="currentColor" d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 6a3 3 0 0 1 3 3c0 1.3-.84 2.4-2 2.82V16h-2v-3.18A3.01 3.01 0 0 1 9 10a3 3 0 0 1 3-3z"/></svg>
+                        认证扫描
+                    </button>
+                    <button class="ghost-btn" id="download-js-btn" title="一键下载当前网站 JS">
+                        <svg viewBox="0 0 24 24" width="15" height="15"><path fill="currentColor" d="M12 16l-5-5h3V4h4v7h3l-5 5zm-7 2h14v2H5v-2z"/></svg>
+                        下载JS
+                    </button>
+                    <button class="ghost-btn" id="export-btn" title="导出JSON">
+                        <svg viewBox="0 0 24 24" width="15" height="15"><path fill="currentColor" d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
+                        导出
+                    </button>
+                </div>
+                <div class="auth-progress" id="auth-progress" style="display:none;">
+                    <div class="dl-bar"><i id="auth-bar-i"></i></div>
+                    <span class="dl-progress-text" id="auth-progress-text"></span>
+                </div>
+                <p class="auth-hint" id="dl-stat-hint" style="display:none;"></p>
+                <div class="frame-nav" id="frame-nav" style="display:none;"></div>
+                <div class="scanner-summary" id="scanner-summary"></div>
+
+                <!-- JS 资源面板（一键下载数据源） -->
+                <div class="section" id="resource-panel" style="display:none;">
+                    <div class="section-header">
+                        <div>
+                            <span class="section-title">JS 资源</span>
+                            <span class="section-count" id="res-count">(0)</span>
+                            <span class="res-meta" id="res-meta"></span>
+                        </div>
+                        <div class="section-actions">
+                            <button class="mini-btn" id="res-refresh">刷新</button>
+                            <button class="mini-btn" id="res-predict" title="静态推导未被请求过的 JS：webpack 懒加载 chunk / Vite·CRA 构建清单 / Module Federation 远程入口">预测补齐</button>
+                            <button class="mini-btn" id="res-dyn" title="blob: / eval / Function 捕获到的运行时脚本（webRequest 看不到）。点击导出为 .js 文件；需先在 Hook 页启用「动态代码捕获」">动态代码</button>
+                            <button class="mini-btn" id="res-copy">复制URL</button>
+                            <button class="mini-btn" id="res-download">下载全部</button>
+                        </div>
+                    </div>
+                    <div class="res-filter">
+                        <label class="res-check"><input type="checkbox" id="res-third"> 含第三方</label>
+                        <label class="res-check"><input type="checkbox" id="res-skipmin"> 隐藏 .min.js</label>
+                    </div>
+                    <p class="res-coverage" id="res-coverage" style="display:none;"></p>
+                    <div class="section-items" id="res-items"></div>
+                </div>
+
+                <div class="sections" id="scanner-sections"></div>
+            </section>
+
+            <!-- 指纹 -->
+            <section class="page finger-page" data-page="finger">
+                <div class="finger-section" id="finger-list">
+                    <div class="loading">点击页面后刷新以采集指纹</div>
+                </div>
+            </section>
+
+            <!-- Hook 工具 -->
+            <section class="page hooks-page" data-page="hooks">
+                <div class="hooks-subtabs">
+                    <button class="subtab active" data-sub="antidebug">反调试</button>
+                    <button class="subtab" data-sub="hook">API Hook</button>
+                </div>
+                <div class="hooks-search">
+                    <input type="text" id="hooks-search" placeholder="搜索 Hook 脚本...">
+                </div>
+                <div class="hook-health" id="hook-health" style="display:none;"></div>
+                <div class="hooks-list" id="hooks-list"></div>
+            </section>
+
+            <!-- 路由 -->
+            <section class="page routes-page" data-page="routes">
+                <div class="routes-subtabs">
+                    <button class="subtab active" data-route-sub="vue">Vue</button>
+                    <button class="subtab" data-route-sub="react">React</button>
+                </div>
+                <!-- Vue 路由对抗面板（借鉴 v1.5.0；Vue 子标签下总可见，未检测到路由也可用） -->
+                <div class="counter-panel" id="vue-counter-panel">
+                    <div class="counter-title">
+                        <span>Vue 路由对抗</span>
+                        <small>参考 AntiDebug_Breaker，点击即时生效、可再次点击恢复</small>
+                    </div>
+                    <div class="counter-btns">
+                        <button class="counter-btn" id="vue-clear-nav" data-on="false">
+                            <span class="counter-dot"></span>
+                            <span class="counter-text">清除跳转</span>
+                        </button>
+                        <button class="counter-btn" id="vue-clear-guards" data-on="false">
+                            <span class="counter-dot"></span>
+                            <span class="counter-text">清除路由守卫</span>
+                        </button>
+                    </div>
+                </div>
+                <div class="routes-info" id="routes-info">等待检测路由（请在 Hook 页开启相应脚本并刷新页面）</div>
+                <div class="routes-list" id="routes-list"></div>
+                <div class="routes-actions" id="routes-actions" style="display:none;">
+                    <button class="ghost-btn" id="copy-all-paths">复制所有路径</button>
+                    <button class="ghost-btn" id="copy-all-urls">复制所有URL</button>
+                </div>
+            </section>
+
+            <!-- 设置 -->
+            <section class="page settings-page" data-page="settings">
+                <div class="setting-group">
+                    <h3>扫描选项</h3>
+                    <label class="switch-row">
+                        <span><b>动态扫描</b><small>实时捕获动态渲染内容（MutationObserver）</small></span>
+                        <label class="toggle"><input type="checkbox" id="dynamic-scan"><span class="slider"></span></label>
+                    </label>
+                    <label class="switch-row">
+                        <span><b>深度扫描</b><small>递归抓取 chunk 字符串与 webpack runtime，发现深层 API</small></span>
+                        <label class="toggle"><input type="checkbox" id="deep-scan"><span class="slider"></span></label>
+                    </label>
+                    <label class="switch-row">
+                        <span><b>信息泄露（多关键字 AND）</b><small>二轮高精度匹配：一条规则需多个关键字同时命中才报警，大幅降低误报；规则含内置 65 条 + BurpAPIFinder 106 条</small></span>
+                        <label class="toggle"><input type="checkbox" id="info-leakage"><span class="slider"></span></label>
+                    </label>
+                    <div class="mcp-row">
+                        <span class="mcp-label">规则来源</span>
+                        <select id="info-leakage-src" class="mcp-select">
+                            <option value="all">全部（内置 + BurpAPIFinder）</option>
+                            <option value="builtin">仅内置（65 条）</option>
+                            <option value="burpapi">仅 BurpAPIFinder（106 条）</option>
+                        </select>
+                    </div>
+                    <div class="mcp-row">
+                        <span class="mcp-label">最低准确度</span>
+                        <select id="info-leakage-acc" class="mcp-select">
+                            <option value="3">3（最严，只报确定泄露）</option>
+                            <option value="2">2（推荐）</option>
+                            <option value="1">1（最宽，含推测类）</option>
+                        </select>
+                    </div>
+                    <div class="mcp-row">
+                        <span class="mcp-label">手动 baseURL</span>
+                        <input type="text" id="custom-baseurl" class="dl-text" placeholder="https://api.example.com（识别不到接口主域时手动指定）">
+                        <button class="ghost-btn" id="custom-baseurl-save">保存</button>
+                    </div>
+                    <p class="hint guard-note" id="info-leak-stats">接口 baseURL 识别结果见扫描页「接口 baseURL」分类；认证扫描会按「手动配置 &gt; 识别结果 &gt; 当前源」顺序拼接接口地址。</p>
+                </div>
+                <div class="setting-group">
+                    <h3>一键下载 JS</h3>
+                    <div class="mcp-row">
+                        <span class="mcp-label">保存方式</span>
+                        <select id="dlcfg-engine" class="mcp-select">
+                            <option value="downloads">浏览器下载（相对默认下载目录）</option>
+                            <option value="fs">直写本地目录（可任意选文件夹）</option>
+                        </select>
+                    </div>
+                    <div class="mcp-row" id="dlcfg-fs-row" style="display:none;">
+                        <span class="mcp-label">目标目录</span>
+                        <span class="dl-fs-name" id="dlcfg-fs-name">未选择（在下载面板里选）</span>
+                    </div>
+                    <div class="mcp-row">
+                        <span class="mcp-label">保存目录</span>
+                        <input type="text" id="dlcfg-dir" class="dl-text" placeholder="{url}">
+                    </div>
+                    <p class="dl-preview dl-preview-block" id="dlcfg-dir-preview">真实路径：—</p>
+                    <div class="mcp-row">
+                        <span class="mcp-label">默认形式</span>
+                        <select id="dlcfg-format" class="mcp-select">
+                            <option value="files">逐个文件（保留目录结构）</option>
+                            <option value="zip">打包 ZIP（含清单）</option>
+                            <option value="list">仅导出 URL 清单</option>
+                        </select>
+                    </div>
+                    <div class="mcp-row">
+                        <span class="mcp-label">同名处理</span>
+                        <select id="dlcfg-conflict" class="mcp-select">
+                            <option value="uniquify">自动重命名（推荐）</option>
+                            <option value="overwrite">覆盖已有文件</option>
+                            <option value="prompt">每次询问</option>
+                        </select>
+                    </div>
+                    <div class="mcp-row">
+                        <span class="mcp-label">单次上限</span>
+                        <input type="number" id="dlcfg-max" class="mcp-port" min="1" max="3000" step="1" value="500">
+                        <span class="mcp-label">个文件</span>
+                    </div>
+                    <label class="switch-row">
+                        <span><b>自动按站点URL建文件夹</b><small>目录模板里没有 {url}/{host} 时，自动补上以目标网站URL命名的文件夹</small></span>
+                        <label class="toggle"><input type="checkbox" id="dlcfg-sitefolder"><span class="slider"></span></label>
+                    </label>
+                    <label class="switch-row">
+                        <span><b>扁平化目录</b><small>用 __ 连接路径，避免层级过深</small></span>
+                        <label class="toggle"><input type="checkbox" id="dlcfg-flatten"><span class="slider"></span></label>
+                    </label>
+                    <label class="switch-row">
+                        <span><b>每次询问保存位置</b><small>下载前弹出「另存为」对话框，可自由选择任意目录（逐个文件模式）</small></span>
+                        <label class="toggle"><input type="checkbox" id="dlcfg-saveas"><span class="slider"></span></label>
+                    </label>
+                    <label class="switch-row">
+                        <span><b>包含第三方 JS</b><small>同时下载 CDN / 跨域脚本</small></span>
+                        <label class="toggle"><input type="checkbox" id="dlcfg-third"><span class="slider"></span></label>
+                    </label>
+                    <label class="switch-row">
+                        <span><b>跳过 .min.js</b><small>忽略压缩库文件，减少体积</small></span>
+                        <label class="toggle"><input type="checkbox" id="dlcfg-skipmin"><span class="slider"></span></label>
+                    </label>
+                    <button class="primary-btn" id="dlcfg-save">保存下载设置</button>
+                    <p class="hint guard-note">占位符：<b>{url}</b> 目标网站URL（自建同名文件夹，默认）· {urlfull} 完整URL安全名 · {host} 域名 · {date} 日期 · {time} 时刻 · {page} 页面路径 · {tab} 标签页ID。<br>
+                        浏览器下载模式下路径相对「默认下载目录」（可在浏览器设置里改）；要直接写进本机任意文件夹（如 D:\某目录），用「直写本地目录」，它会自动建好「目标网站URL」子文件夹，且不需要 downloads 权限。</p>
+                </div>
+
+                <div class="setting-group">
+                    <h3>调试捕获（console / 异常）</h3>
+                    <label class="switch-row">
+                        <span><b>捕获控制台日志</b><small>Hook 页面 console.* 与未捕获异常，供本面板与 AI 工具 get_console_logs 读取；切换后需刷新目标页面生效</small></span>
+                        <label class="toggle"><input type="checkbox" id="console-capture"><span class="slider"></span></label>
+                    </label>
+                    <div class="guard-results" id="console-logs">
+                        <div class="empty-state">暂无日志</div>
+                    </div>
+                    <div class="mcp-row">
+                        <button class="ghost-btn" id="console-refresh">刷新日志</button>
+                        <button class="ghost-btn" id="console-clear">清空</button>
+                        <span class="mcp-status" id="console-state">未启用</span>
+                        <span class="mcp-status" id="console-count">0 条</span>
+                    </div>
+                </div>
+
+                <div class="setting-group">
+                    <h3>Hook 模式</h3>
+                    <label class="switch-row">
+                        <span><b>全局模式</b><small>开启后 Hook 脚本注入所有网站；关闭为标准模式(按域名)</small></span>
+                        <label class="toggle"><input type="checkbox" id="global-mode"><span class="slider"></span></label>
+                    </label>
+                </div>
+                <div class="setting-group">
+                    <h3>MCP 服务（AI 工具桥接）</h3>
+                    <label class="switch-row">
+                        <span><b>启用 MCP 服务</b><small>开启后 Codex / Claude / Trae 等 AI 工具可通过 MCP 协议调用插件能力（信息搜集 / JS 调试）</small></span>
+                        <label class="toggle"><input type="checkbox" id="mcp-enabled"><span class="slider"></span></label>
+                    </label>
+                    <div class="mcp-row">
+                        <span class="mcp-label">端口</span>
+                        <input type="number" id="mcp-port" class="mcp-port" min="1024" max="65535" step="1" value="10087">
+                        <span class="mcp-status" id="mcp-status" data-state="disabled">未启用</span>
+                    </div>
+                    <div class="mcp-row">
+                        <span class="mcp-label">配置格式</span>
+                        <select id="mcp-config-fmt" class="mcp-select">
+                            <option value="json">JSON（Claude / Trae / Cursor 等）</option>
+                            <option value="toml">TOML（Codex）</option>
+                        </select>
+                        <button class="ghost-btn" id="mcp-regen-token" title="重新生成连接令牌">重置令牌</button>
+                    </div>
+                    <textarea id="mcp-config-text" rows="9" readonly spellcheck="false"></textarea>
+                    <button class="primary-btn" id="mcp-copy-config">复制配置</button>
+                    <p class="hint guard-note">使用步骤：① 本机安装 Node.js；② 点击「复制配置」，将其中的 &lt;扩展目录&gt; 替换为本扩展 manifest.json 所在目录（Windows 下请用正斜杠 / 拼接路径，如 C:/Users/xxx/HAPPY&nbsp;JS；反斜杠 \ 在 JSON 中需写成 \\，且路径含空格时保持整体在一个字符串里）；③ 写入 AI 工具的 MCP 配置文件（如 Claude 的 claude_desktop_config.json、Codex 的 ~/.codex/config.toml、Trae 的 MCP 设置）；④ 启动 AI 会话即自动桥接。桥接仅监听 127.0.0.1 且采用令牌双向鉴权。</p>
+                </div>
+                <div class="setting-group">
+                    <h3>运行状态自检</h3>
+                    <div class="health-box" id="health-summary">点击下方按钮检测后台与各模块状态</div>
+                    <div class="mcp-row">
+                        <button class="ghost-btn" id="health-refresh">重新检测</button>
+                        <button class="ghost-btn" id="health-copy">复制诊断</button>
+                        <button class="ghost-btn" id="health-reload" title="chrome.runtime.reload()">重载扩展</button>
+                    </div>
+                    <label class="switch-row">
+                        <span><b>CDP 深度执行</b><small>授予 debugger 权限后，用调试协议执行代码，可绕过 CSP / Trusted Types（普通场景无需开启；开启期间目标标签页顶部会显示调试提示条，空闲 90 秒自动断开）</small></span>
+                        <label class="toggle"><input type="checkbox" id="cdp-enabled"><span class="slider"></span></label>
+                    </label>
+                    <div class="mcp-row">
+                        <span class="mcp-status" id="cdp-state">未授权</span>
+                    </div>
+                </div>
+                <div class="setting-group">
+                    <h3>白名单（每行一个域名，跳过扫描）</h3>
+                    <textarea id="whitelist-input" rows="5" placeholder="example.com&#10;.example.com"></textarea>
+                    <button class="primary-btn" id="save-whitelist">保存白名单</button>
+                </div>
+                <div class="setting-group about">
+                    <h3>关于</h3>
+                    <p><b>JsXray v1.1.0</b></p>
+                    <p>跨浏览器敏感信息与指纹扫描 · 动态/深度扫描 · JS 逆向 Hook 辅助 · 一键下载站点 JS · MCP 服务（32 个 AI 工具）</p>
+                    <p class="hint">提示：开启/关闭 Hook 后需刷新页面生效。Chrome / Edge / Brave 与 Firefox 128+ 支持主世界 Hook 注入。</p>
+                </div>
+            </section>
+
+            <!-- 防护（整合自 Heimdallr） -->
+            <section class="page guard-page" data-page="guard">
+                <!-- 子标题 1：反蜜罐检测 -->
+                <div class="guard-subtitle">
+                    <svg viewBox="0 0 24 24" width="14" height="14"><path fill="currentColor" d="M12 2L1 7v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V7l-11-5z"/></svg>
+                    <span>反蜜罐检测</span>
+                </div>
+                <div class="setting-group">
+                    <label class="switch-row">
+                        <span><b>蜜罐域名拦截</b><small>通过 declarativeNetRequest 拦截已知蜜罐 JSONP 域名</small></span>
+                        <label class="toggle"><input type="checkbox" id="hd-block-honeypot"><span class="slider"></span></label>
+                    </label>
+                    <label class="switch-row">
+                        <span><b>JSONP 告警通知</b><small>单页 JSONP 命中超过 10 个时弹出系统通知</small></span>
+                        <label class="toggle"><input type="checkbox" id="hd-jsonp-alert"><span class="slider"></span></label>
+                    </label>
+                    <div class="guard-stats" id="hd-honeypot-stats"></div>
+                    <div class="guard-results" id="hd-honeypot-results">
+                        <div class="empty-state">暂无蜜罐命中</div>
+                    </div>
+                </div>
+
+                <!-- 子标题 2：特征对抗 -->
+                <div class="guard-subtitle">
+                    <svg viewBox="0 0 24 24" width="14" height="14"><path fill="currentColor" d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4z"/></svg>
+                    <span>特征对抗</span>
+                </div>
+                <div class="setting-group">
+                    <label class="switch-row">
+                        <span><b>禁用页面缓存</b><small>每次页面加载时清除浏览器缓存，避免缓存影响检测</small></span>
+                        <label class="toggle"><input type="checkbox" id="hd-no-page-cache"><span class="slider"></span></label>
+                    </label>
+                    <p class="hint guard-note">Canvas 指纹干扰、响应体捕获请到 Hook 页 → API Hook 开启（响应体捕获用于 position5 规则匹配，无需 debugger 权限）</p>
+                </div>
+
+                <!-- 子标题 3：指纹规则识别 -->
+                <div class="guard-subtitle">
+                    <svg viewBox="0 0 24 24" width="14" height="14"><path fill="currentColor" d="M9 11H7v2h2v-2zm4 0h-2v2h2v-2zm4 0h-2v2h2v-2zm2-7h-1V2h-2v2H8V2H6v2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2zm0 16H5V9h14v11z"/></svg>
+                    <span>指纹规则识别</span>
+                </div>
+                <div class="setting-group">
+                    <div class="guard-stats" id="hd-fingerprint-stats"></div>
+                    <div class="guard-results" id="hd-fingerprint-results">
+                        <div class="empty-state">暂无指纹命中</div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="page bucket-page" data-page="bucket">
+                <div class="bucket-subtabs">
+                    <button class="subtab active" data-bucket-sub="history">风险记录</button>
+                    <button class="subtab" data-bucket-sub="lists">黑白名单</button>
+                    <button class="subtab" data-bucket-sub="settings">检测策略</button>
+                    <button class="subtab" data-bucket-sub="advanced">高级性能</button>
+                </div>
+
+                <!-- 子页 1：风险记录 -->
+                <div class="bucket-panel active" data-bucket-panel="history">
+                    <div class="bucket-stats" id="bucket-stats"></div>
+                    <div class="bucket-toolbar">
+                        <button class="primary-btn" id="bucket-manual-detect" title="打开日志窗口主动检测存储桶">主动检测</button>
+                        <button class="ghost-btn" id="bucket-export" title="导出全部风险记录">导出</button>
+                        <button class="ghost-btn danger" id="bucket-clear" title="清空所有历史记录">清空</button>
+                    </div>
+                    <div class="bucket-history" id="bucket-history">
+                        <div class="empty-state">暂无检测记录（访问命中云存储域名的资源时会自动被动检测）</div>
+                    </div>
+                </div>
+
+                <!-- 子页 2：黑白名单 -->
+                <div class="bucket-panel" data-bucket-panel="lists">
+                    <label class="switch-row">
+                        <span><b>白名单模式</b><small>开启后仅检测白名单命中的来源域名</small></span>
+                        <label class="toggle"><input type="checkbox" id="bucket-whitelist-mode"><span class="slider"></span></label>
+                    </label>
+                    <div class="bucket-listbox">
+                        <div class="bucket-listbox-title">
+                            <span>黑名单（永远排除）</span>
+                            <span class="bucket-list-actions">
+                                <button class="mini-btn" id="bucket-bl-import">导入</button>
+                                <button class="mini-btn" id="bucket-bl-export">导出</button>
+                                <button class="mini-btn danger" id="bucket-bl-clear">清空</button>
+                            </span>
+                        </div>
+                        <div class="bucket-inputrow">
+                            <input type="text" id="bucket-bl-input" class="bucket-input" placeholder="域名 / *.通配符 / IP:端口">
+                            <button class="ghost-btn" id="bucket-bl-add">添加</button>
+                        </div>
+                        <ul class="bucket-mini-list" id="bucket-bl-list"></ul>
+                        <input type="file" id="bucket-bl-file" accept="application/json,text/plain" style="display:none;">
+                    </div>
+                    <div class="bucket-listbox">
+                        <div class="bucket-listbox-title">
+                            <span>白名单（配合白名单模式）</span>
+                            <span class="bucket-list-actions">
+                                <button class="mini-btn" id="bucket-wl-import">导入</button>
+                                <button class="mini-btn" id="bucket-wl-export">导出</button>
+                                <button class="mini-btn danger" id="bucket-wl-clear">清空</button>
+                            </span>
+                        </div>
+                        <div class="bucket-inputrow">
+                            <input type="text" id="bucket-wl-input" class="bucket-input" placeholder="域名 / *.通配符 / IP:端口">
+                            <button class="ghost-btn" id="bucket-wl-add">添加</button>
+                        </div>
+                        <ul class="bucket-mini-list" id="bucket-wl-list"></ul>
+                        <input type="file" id="bucket-wl-file" accept="application/json,text/plain" style="display:none;">
+                    </div>
+                </div>
+
+                <!-- 子页 3：检测策略 -->
+                <div class="bucket-panel" data-bucket-panel="settings">
+                    <label class="switch-row">
+                        <span><b>被动检测总开关</b><small>访问命中云存储域名的资源时自动探测风险</small></span>
+                        <label class="toggle"><input type="checkbox" id="bucket-passive-enabled"><span class="slider"></span></label>
+                    </label>
+                    <label class="switch-row">
+                        <span><b>页面内容扫描</b><small>扫描页面/JS 中疑似云存储 URL 并检测（请求更多，默认关闭）</small></span>
+                        <label class="toggle"><input type="checkbox" id="bucket-scan-page"><span class="slider"></span></label>
+                    </label>
+                    <label class="switch-row">
+                        <span><b>安全模式（被动）</b><small>跳过 PUT/DELETE/ACL写/Policy写 等写入探测</small></span>
+                        <label class="toggle"><input type="checkbox" id="bucket-safe-mode"><span class="slider"></span></label>
+                    </label>
+                    <label class="switch-row">
+                        <span><b>检测 ACL</b><small>读取桶 ACL 访问控制配置</small></span>
+                        <label class="toggle"><input type="checkbox" id="bucket-flag-acl"><span class="slider"></span></label>
+                    </label>
+                    <label class="switch-row">
+                        <span><b>检测 Policy</b><small>读取桶 Policy 策略配置</small></span>
+                        <label class="toggle"><input type="checkbox" id="bucket-flag-policy"><span class="slider"></span></label>
+                    </label>
+                    <label class="switch-row">
+                        <span><b>目录回溯探测</b><small>逐级回溯到根目录（请求更多，默认关闭）</small></span>
+                        <label class="toggle"><input type="checkbox" id="bucket-traverse"><span class="slider"></span></label>
+                    </label>
+                    <button class="ghost-btn bucket-reset" id="bucket-settings-reset">恢复默认策略</button>
+                </div>
+
+                <!-- 子页 4：高级性能 -->
+                <div class="bucket-panel" data-bucket-panel="advanced">
+                    <p class="hint bucket-note">提升扫描深度会增加页面加载时的 CPU / 内存消耗，极端场景可能影响浏览器流畅度。</p>
+                    <div class="bucket-num-row">
+                        <span>外链 JS 扫描数量<small>10-100</small></span>
+                        <input type="number" id="bucket-max-external" min="10" max="100" value="40">
+                    </div>
+                    <div class="bucket-num-row">
+                        <span>内联 JS 扫描数量<small>5-50</small></span>
+                        <input type="number" id="bucket-max-inline" min="5" max="50" value="20">
+                    </div>
+                    <div class="bucket-num-row">
+                        <span>单文件最大扫描 (KB)<small>100-5000</small></span>
+                        <input type="number" id="bucket-max-filesize" min="100" max="5000" value="1024">
+                    </div>
+                    <div class="bucket-num-row">
+                        <span>总候选 URL 上限<small>20-200</small></span>
+                        <input type="number" id="bucket-max-candidates" min="20" max="200" value="60">
+                    </div>
+                    <button class="primary-btn bucket-reset" id="bucket-advanced-save">保存性能设置</button>
+                    <button class="ghost-btn bucket-reset" id="bucket-advanced-reset">恢复默认性能设置</button>
+                </div>
+            </section>
+        </main>
+
+        <!-- 一键下载 JS 弹层 -->
+        <div class="modal-mask" id="dl-modal" style="display:none;">
+            <div class="modal">
+                <div class="modal-head">
+                    <b>一键下载当前网站 JS</b>
+                    <button class="modal-close" id="dl-close" title="关闭">×</button>
+                </div>
+                <div class="modal-body">
+                    <div class="dl-row">
+                        <span class="dl-label">范围</span>
+                        <select id="dl-scope" class="mcp-select">
+                            <option value="sameOrigin">本站 JS（同源）</option>
+                            <option value="all">全部（含第三方）</option>
+                            <option value="thirdParty">仅第三方 CDN</option>
+                        </select>
+                    </div>
+                    <div class="dl-row">
+                        <span class="dl-label">形式</span>
+                        <select id="dl-format" class="mcp-select">
+                            <option value="files">逐个文件（保留目录结构）</option>
+                            <option value="zip">打包 ZIP（含 _manifest.json）</option>
+                            <option value="list">仅导出 URL 清单（txt）</option>
+                        </select>
+                    </div>
+                    <div class="dl-row">
+                        <span class="dl-label">保存方式</span>
+                        <select id="dl-engine" class="mcp-select">
+                            <option value="downloads">浏览器下载（相对默认下载目录）</option>
+                            <option value="fs">直写本地目录（可任意选文件夹）</option>
+                        </select>
+                    </div>
+                    <div class="dl-row" id="dl-fs-row" style="display:none;">
+                        <span class="dl-label">目标目录</span>
+                        <span class="dl-fs-name" id="dl-fs-name">未选择（点「开始下载」后在下载面板里选）</span>
+                    </div>
+                    <div class="dl-row">
+                        <span class="dl-label">保存目录</span>
+                        <input type="text" id="dl-dir" class="dl-text" placeholder="{url}">
+                    </div>
+                    <div class="dl-presets" id="dl-presets">
+                        <button class="mini-btn" data-tpl="{url}">按站点URL</button>
+                        <button class="mini-btn" data-tpl="{url}/{date}">站点/日期</button>
+                        <button class="mini-btn" data-tpl="HAPPYJS/{url}/{date}">HAPPYJS/站点/日期</button>
+                        <button class="mini-btn" data-tpl="{urlfull}">完整URL名</button>
+                    </div>
+                    <p class="dl-hint">
+                        占位符：<b>{url}</b> 目标网站URL（会自动创建同名文件夹，默认）· {urlfull} 完整URL安全名 · {host} 域名 · {date} 日期 · {time} 时刻 · {page} 页面路径 · {tab} 标签页ID<br>
+                        该路径相对浏览器「默认下载目录」；想直接写进本机任意文件夹请选「直写本地目录」（无需下载权限，会自动建好站点文件夹）。<br>
+                        <span class="dl-preview" id="dl-dir-preview">真实路径：—</span>
+                    </p>
+                    <div class="dl-opts">
+                        <label class="res-check"><input type="checkbox" id="dl-sitefolder" checked> 自动按站点URL建文件夹</label>
+                        <label class="res-check"><input type="checkbox" id="dl-flatten"> 扁平化目录</label>
+                        <label class="res-check"><input type="checkbox" id="dl-saveas"> 每次询问保存位置</label>
+                        <label class="res-check"><input type="checkbox" id="dl-third"> 含第三方</label>
+                        <label class="res-check"><input type="checkbox" id="dl-skipmin"> 跳过 .min.js</label>
+                    </div>
+                    <div class="dl-stat" id="dl-stat">正在统计…</div>
+                    <p class="dl-engine-hint" id="dl-engine-hint" style="display:none;"></p>
+                    <div class="dl-progress" id="dl-progress" style="display:none;">
+                        <div class="dl-bar"><i id="dl-bar-i"></i></div>
+                        <span class="dl-progress-text" id="dl-progress-text"></span>
+                    </div>
+                    <div class="dl-result" id="dl-result"></div>
+                </div>
+                <div class="modal-foot">
+                    <button class="ghost-btn" id="dl-save-config">存为默认</button>
+                    <button class="ghost-btn" id="dl-reload" title="刷新目标页面并重新采集 JS 列表">刷新页面</button>
+                    <button class="ghost-btn" id="dl-list-btn">仅复制URL</button>
+                    <button class="primary-btn" id="dl-run">开始下载</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Toast -->
+        <div class="toast" id="toast"></div>
+    </div>
+    <script src="fsdl.js"></script>
+    <script src="popup.js"></script>
+</body>
+</html>

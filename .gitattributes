@@ -1,0 +1,15 @@
+# 统一行尾：仓库内一律 LF，检出时按平台转换（避免跨平台 diff 噪音）
+* text=auto
+
+# 二进制文件不参与行尾转换
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.zip binary
+
+# 规则库与引擎 bundle 属"数据"，不做 diff 合并标记
+data/heimdallr_rules.js -diff
+lib/bucket/bucket_core.js -diff
+_CHECKSUMS.txt -diff

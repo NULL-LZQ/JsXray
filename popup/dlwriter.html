@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<title>JsXray — 直写本地目录</title>
+<style>
+    :root {
+        --bg: #f7f8fa; --card: #fff; --bg-3: #eef0f4; --border: #e3e6eb;
+        --text: #1f2329; --text-dim: #646a73; --text-mute: #8f959e;
+        --accent: #4e6ef2; --ok: #00a878; --danger: #e34d59; --warn: #e87d24;
+        --radius: 10px;
+    }
+    :root[data-theme="dark"] {
+        --bg: #0d1117; --card: #161b22; --bg-3: #21262d; --border: #30363d;
+        --text: #e6edf3; --text-dim: #9da7b3; --text-mute: #7d8590;
+        --accent: #6b8afd; --ok: #35c48b; --danger: #f0717c; --warn: #f0932b;
+    }
+    * { box-sizing: border-box; }
+    body {
+        margin: 0; padding: 26px 30px 60px; background: var(--bg); color: var(--text);
+        font: 13px/1.6 -apple-system, BlinkMacSystemFont, "Segoe UI", "Microsoft YaHei", sans-serif;
+    }
+    .wrap { max-width: 900px; margin: 0 auto; }
+    h1 { font-size: 17px; margin: 0 0 4px; }
+    .sub { color: var(--text-mute); font-size: 12px; margin-bottom: 18px; }
+    .card {
+        background: var(--card); border: 1px solid var(--border); border-radius: var(--radius);
+        padding: 16px 18px; margin-bottom: 14px;
+    }
+    .row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 8px; }
+    .row .lab { color: var(--text-mute); font-size: 12px; min-width: 84px; }
+    button {
+        font: inherit; font-size: 12px; padding: 7px 14px; border-radius: 7px; cursor: pointer;
+        border: 1px solid var(--border); background: var(--bg-3); color: var(--text);
+    }
+    button:hover { border-color: var(--accent); }
+    button.primary { background: var(--accent); border-color: var(--accent); color: #fff; font-weight: 600; }
+    button.primary[disabled] { opacity: .5; cursor: not-allowed; }
+    code, .mono { font-family: ui-monospace, Consolas, "Courier New", monospace; font-size: 12px; }
+    .path { color: var(--ok); word-break: break-all; }
+    .muted { color: var(--text-mute); font-size: 12px; }
+    .bar { height: 8px; border-radius: 4px; background: var(--bg-3); overflow: hidden; margin: 10px 0 6px; }
+    .bar i { display: block; height: 100%; width: 0; background: var(--accent); transition: width .2s; }
+    .log { max-height: 300px; overflow: auto; margin-top: 10px; border-top: 1px dashed var(--border); padding-top: 8px; }
+    .log div { font-family: ui-monospace, Consolas, monospace; font-size: 11px; color: var(--text-dim); word-break: break-all; }
+    .log .ok { color: var(--ok); }
+    .log .err { color: var(--danger); }
+    .note { background: var(--bg-3); border-left: 3px solid var(--warn); padding: 8px 10px; border-radius: 6px; font-size: 12px; color: var(--text-dim); }
+    .hidden { display: none !important; }
+</style>
+</head>
+<body>
+<div class="wrap">
+    <h1>JsXray · 直写本地目录</h1>
+    <div class="sub" id="job-summary">正在读取下载任务…</div>
+
+    <div class="card">
+        <div class="row">
+            <span class="lab">目标文件夹</span>
+            <button id="pick" class="primary">选择文件夹…</button>
+            <span class="path mono" id="root-name">未选择</span>
+        </div>
+        <div class="row">
+            <span class="lab">将写入</span>
+            <span class="mono path" id="target-preview">—</span>
+        </div>
+        <div class="row">
+            <span class="lab">同名文件</span>
+            <select id="conflict" class="mono">
+                <option value="rename">自动重命名（推荐）</option>
+                <option value="overwrite">覆盖</option>
+                <option value="skip">跳过已存在</option>
+            </select>
+            <button id="start" disabled>开始写入</button>
+            <button id="cancel">停止</button>
+        </div>
+        <div class="bar"><i id="bar-i"></i></div>
+        <div class="muted" id="progress-text">等待开始</div>
+        <div class="log" id="log"></div>
+    </div>
+
+    <div class="card hidden" id="result-card">
+        <div class="row"><span class="lab">结果</span><span id="result-summary"></span></div>
+        <div class="note" id="result-note"></div>
+    </div>
+</div>
+<script src="fsdl.js"></script>
+<script src="dlwriter.js"></script>
+</body>
+</html>

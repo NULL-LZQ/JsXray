@@ -1,0 +1,28 @@
+# ── 系统 / 编辑器 ──
+.DS_Store
+Thumbs.db
+desktop.ini
+*.swp
+*~
+
+# ── 依赖与构建产物（本扩展零依赖，这里只是防误提交）──
+node_modules/
+dist/
+build/
+
+# ── 本地打包输出 ──
+release/
+
+# ── 本地调试 / 采集产物（不进仓库）──
+js/
+*.log
+
+# ── 工作区私有数据（对话记忆、技能缓存等）──
+.workbuddy/
+
+# ── 本地参考的同源分支 / 外部项目（不随本仓库发布）──
+HAPPY.JS.v1.5.0/
+hybrid_capture_project2/
+
+# ── 内部审计记录（含真实目标信息，需另行确认是否公开）──
+docs/qa-*.md
